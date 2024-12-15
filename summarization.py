@@ -1,7 +1,7 @@
 import os
 import google.generativeai as genai
 from datetime import datetime as dt
-
+import discord
 
 def get_messages(guild_id):
     """
@@ -25,7 +25,7 @@ def get_messages(guild_id):
 
 
 
-def summarize_messages(guild_id, messages):
+def summarize_messages(guild_id, messages, role):
     """
         Summarizes the messages from a guild using the Hugging Face pipeline.
 
@@ -55,13 +55,15 @@ def summarize_messages(guild_id, messages):
     {messages}
     [/INST]
     """
-    while(len(response.text) > 2000):
+    while(True):
         response = model.generate_content(prompt)
+        if len(f"{role.mention} {response.text}") <= 2000:
+            break
     # Export to txt file
     now = dt.now()
     with open(f'summarizations/{guild_id}_{now.year}_{now.month}.txt', 'a', encoding='utf-8') as f:
         f.write(response.text)
-    return response.text
+    return response.text 
 
 
 
